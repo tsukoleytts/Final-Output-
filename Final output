@@ -1,0 +1,154 @@
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Scanner;
+
+public class BankingApp {
+    private static Map<Integer, Account> accounts = new HashMap<>();
+    private static int loggedInUserId = -1;
+
+    public static void main(String[] args) {
+        initializeAccounts();
+
+        while (true) {
+            System.out.println("1. Login");
+            System.out.println("2. Check Balance");
+            System.out.println("3. Cash-in");
+            System.out.println("4. Money Transfer");
+            System.out.println("5. Exit");
+
+            Scanner scanner = new Scanner(System.in);
+            int choice = scanner.nextInt();
+
+            switch (choice) {
+                case 1:
+                    login();
+                    break;
+                case 2:
+                    checkBalance();
+                    break;
+                case 3:
+                    cashIn();
+                    break;
+                case 4:
+                    moneyTransfer();
+                    break;
+                case 5:
+                    System.out.println("Exiting the banking app. Thank you!");
+                    System.exit(0);
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
+        }
+    }
+
+    private static void initializeAccounts() {
+        accounts.put(412435, new Account(412435, 7452, "Chris Sandoval", 32000));
+        accounts.put(264863, new Account(264863, 1349, "Marc Yim", 1000));
+    }
+
+    private static void login() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Enter user ID: ");
+        int userId = scanner.nextInt();
+        System.out.println("Enter PIN: ");
+        int pin = scanner.nextInt();
+
+        if (accounts.containsKey(userId)) {
+            Account account = accounts.get(userId);
+            if (account.getPin() == pin) {
+                loggedInUserId = userId;
+                System.out.println("Login successful. Welcome, " + account.getName() + "!");
+            } else {
+                System.out.println("Incorrect PIN. Login failed.");
+            }
+        } else {
+            System.out.println("User not found. Login failed.");
+        }
+    }
+
+    private static void checkBalance() {
+        if (loggedInUserId != -1) {
+            Account account = accounts.get(loggedInUserId);
+            System.out.println("Your balance is: $" + account.getBalance());
+        } else {
+            System.out.println("Please log in first.");
+        }
+    }
+
+    private static void cashIn() {
+        if (loggedInUserId != -1) {
+            Scanner scanner = new Scanner(System.in);
+            System.out.println("Enter the amount to add: ");
+            double amount = scanner.nextDouble();
+
+            Account account = accounts.get(loggedInUserId);
+            account.setBalance(account.getBalance() + amount);
+
+            System.out.println("Cash-in successful. Updated balance: $" + account.getBalance());
+        } else {
+            System.out.println("Please log in first.");
+        }
+    }
+
+    private static void moneyTransfer() {
+        if (loggedInUserId != -1) {
+            Scanner scanner = new Scanner(System.in);
+            System.out.println("Enter recipient's user ID: ");
+            int recipientUserId = scanner.nextInt();
+
+            if (accounts.containsKey(recipientUserId)) {
+                System.out.println("Enter the amount to transfer: ");
+                double amount = scanner.nextDouble();
+
+                Account senderAccount = accounts.get(loggedInUserId);
+                Account recipientAccount = accounts.get(recipientUserId);
+
+                if (senderAccount.getBalance() >= amount) {
+                    senderAccount.setBalance(senderAccount.getBalance() - amount);
+                    recipientAccount.setBalance(recipientAccount.getBalance() + amount);
+                    System.out.println("Money transfer successful.");
+                } else {
+                    System.out.println("Insufficient funds. Money transfer failed.");
+                }
+            } else {
+                System.out.println("Recipient user not found. Money transfer failed.");
+            }
+        } else {
+            System.out.println("Please log in first.");
+        }
+    }
+}
+
+class Account {
+    private int id;
+    private int pin;
+    private String name;
+    private double balance;
+
+    public Account(int id, int pin, String name, double balance) {
+        this.id = id;
+        this.pin = pin;
+        this.name = name;
+        this.balance = balance;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public int getPin() {
+        return pin;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public double getBalance() {
+        return balance;
+    }
+
+    public void setBalance(double balance) {
+        this.balance = balance;
+    }
+}
